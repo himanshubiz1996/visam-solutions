@@ -21,3 +21,26 @@
     @apply bg-clip-text text-transparent bg-gradient-to-r from-neon via-blue to-pink;
   }
 }
+
+/* Ensure cursor visible everywhere */
+* {
+  cursor: inherit !important;
+}
+
+/* Hide default cursor on public pages only */
+body:not(:has([data-admin-page])) {
+  cursor: none;
+}
+
+/* Show default cursor on admin pages */
+[data-admin-page],
+[data-admin-page] * {
+  cursor: default !important;
+}
+
+/* Hide custom cursor on admin pages */
+[data-admin-page] ~ [class*="mix-blend-difference"],
+body:has([data-admin-page]) .fixed.pointer-events-none {
+  display: none !important;
+}
+

@@ -81,7 +81,7 @@ function ProjectCard({ project, index }) {
           src={project.image}
           alt={project.title}
           className="w-full h-full object-cover"
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ y: -15, scale: 1.02 }}
           transition={{ duration: 0.6 }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-night via-night/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

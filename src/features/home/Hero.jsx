@@ -16,7 +16,7 @@ export default function Hero() {
           transition={{ duration: 1 }}
         >
           {/* Hero Text */}
-          <h1 className="text-[12vw] md:text-[8vw] lg:text-[7rem] font-black leading-[0.9] tracking-tighter mb-8">
+          <h1 className="text-[14vw] md:text-[10vw] lg:text-[9rem] font-black leading-[0.85] tracking-tighter mb-8">
             {words.map((word, i) => (
               <motion.span
                 key={i}

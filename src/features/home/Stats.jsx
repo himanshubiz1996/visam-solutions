@@ -42,7 +42,7 @@ export default function Stats() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.3 });
 
   return (
-    <section ref={ref} className="py-32 px-6 bg-night relative overflow-hidden">
+    <section ref={ref} className="py-32 px-6 bg-gradient-to-b from-night via-night/95 to-night relative overflow-hidden">
       {/* Background Effect */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-neon/5 to-transparent" />
 

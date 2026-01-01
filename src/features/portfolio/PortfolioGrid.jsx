@@ -1,18 +1,50 @@
+// src/features/portfolio/PortfolioGrid.jsx
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PortfolioCard from './PortfolioCard';
-import { portfolioProjects } from './portfolioData';
+import { usePortfolios } from '../../hooks/useDatabase';
 
 const categories = ['All', 'E-commerce', 'Branding', 'Web Development', 'Packaging', 'Marketing', 'App Design'];
 
 export default function PortfolioGrid() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
   const [activeCategory, setActiveCategory] = useState('All');
+  
+  // Fetch portfolios from Supabase
+  const { data: portfolioProjects, loading, error } = usePortfolios({
+    orderBy: { column: 'created_at', ascending: false }
+  });
 
   const filteredProjects = activeCategory === 'All'
     ? portfolioProjects
     : portfolioProjects.filter(project => project.category === activeCategory);
+
+  // Loading State
+  if (loading) {
+    return (
+      <section className="py-20 px-6 bg-night relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-neon"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Error State
+  if (error) {
+    return (
+      <section className="py-20 px-6 bg-night relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-20">
+            <p className="text-red-400 text-lg">Error loading portfolios: {error}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section ref={ref} className="py-20 px-6 bg-night relative overflow-hidden">

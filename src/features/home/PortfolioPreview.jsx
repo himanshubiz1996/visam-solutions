@@ -1,7 +1,8 @@
+// src/features/home/PortfolioPreview.jsx
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { ArrowRight } from 'lucide-react';
-import { portfolioProjects } from '../portfolio/portfolioData';
+import { usePortfolios } from '../../hooks/useDatabase';
 
 function ProjectCard({ project, index }) {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
@@ -63,7 +64,13 @@ function ProjectCard({ project, index }) {
 
 export default function PortfolioPreview() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  
+  // Fetch portfolios from Supabase (limit to 3 for homepage)
+  const { data: portfolioProjects, loading, error } = usePortfolios({
+    orderBy: { column: 'created_at', ascending: false }
+  });
 
+  // Get first 3 featured projects
   const featuredProjects = portfolioProjects.slice(0, 3);
 
   return (
@@ -83,31 +90,56 @@ export default function PortfolioPreview() {
           </p>
         </motion.div>
 
-        {/* Portfolio Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {featuredProjects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} />
-          ))}
-        </div>
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-neon"></div>
+          </div>
+        )}
 
-        {/* View More Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6 }}
-          className="text-center"
-        >
-          <motion.a
-            href="/portfolio"
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-neon to-blue text-night rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-neon/30 transition-all"
-            data-hover
-          >
-            <span>View All Projects</span>
-            <ArrowRight size={20} />
-          </motion.a>
-        </motion.div>
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-20">
+            <p className="text-red-400">Error loading projects: {error}</p>
+          </div>
+        )}
+
+        {/* Portfolio Grid */}
+        {!loading && !error && featuredProjects.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {featuredProjects.map((project, index) => (
+                <ProjectCard key={project.id} project={project} index={index} />
+              ))}
+            </div>
+
+            {/* View More Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.6 }}
+              className="text-center"
+            >
+              <motion.a
+                href="/portfolio"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className="inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-neon to-blue text-night rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-neon/30 transition-all"
+                data-hover
+              >
+                <span>View All Projects</span>
+                <ArrowRight size={20} />
+              </motion.a>
+            </motion.div>
+          </>
+        )}
+
+        {/* No Projects State */}
+        {!loading && !error && featuredProjects.length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-white/60 text-lg">No projects available yet.</p>
+          </div>
+        )}
       </div>
     </section>
   );

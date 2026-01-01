@@ -1,66 +1,11 @@
+// src/features/home/Portfolio.jsx (or wherever this file is)
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { ExternalLink, Github } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
+import { usePortfolios } from '../../hooks/useDatabase';
 
-const projects = [
-  {
-    id: 1,
-    title: 'Treza Care',
-    category: 'E-commerce',
-    image: 'https://images.unsplash.com/photo-1661956602116-aa6865609028?w=800&q=80',
-    description: 'Shopify store redesign with 40% conversion increase',
-    tech: ['Shopify', 'Liquid', 'Custom Theme'],
-    color: '#0EA5E9',
-  },
-  {
-    id: 2,
-    title: 'PIXIPOM Agency',
-    category: 'Branding',
-    image: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800&q=80',
-    description: 'Complete brand identity and digital marketing platform',
-    tech: ['React', 'Tailwind', 'Framer Motion'],
-    color: '#00F5A0',
-  },
-  {
-    id: 3,
-    title: 'SaaS Dashboard',
-    category: 'Web Design',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
-    description: 'Analytics dashboard with real-time data visualization',
-    tech: ['React', 'Firebase', 'Chart.js'],
-    color: '#8B5CF6',
-  },
-  {
-    id: 4,
-    title: 'Restaurant App',
-    category: 'Web Design',
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80',
-    description: 'Online ordering system with live tracking',
-    tech: ['Next.js', 'Supabase', 'Stripe'],
-    color: '#F59E0B',
-  },
-  {
-    id: 5,
-    title: 'Fitness Brand',
-    category: 'Branding',
-    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80',
-    description: 'Logo design, brand guidelines, and marketing materials',
-    tech: ['Figma', 'Illustrator', 'Brand Identity'],
-    color: '#FF008C',
-  },
-  {
-    id: 6,
-    title: 'Ayurvedic Store',
-    category: 'E-commerce',
-    image: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=800&q=80',
-    description: 'WordPress + WooCommerce with custom integrations',
-    tech: ['WordPress', 'WooCommerce', 'ACF'],
-    color: '#10B981',
-  },
-];
-
-const categories = ['All', 'Web Design', 'E-commerce', 'Branding'];
+const categories = ['All', 'Web Development', 'E-commerce', 'Branding', 'Web Design'];
 
 function ProjectCard({ project, index }) {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
@@ -78,7 +23,7 @@ function ProjectCard({ project, index }) {
       {/* Image */}
       <div className="relative h-64 overflow-hidden">
         <motion.img
-          src={project.image}
+          src={project.thumbnail}
           alt={project.title}
           className="w-full h-full object-cover"
           whileHover={{ y: -15, scale: 1.02 }}
@@ -92,10 +37,13 @@ function ProjectCard({ project, index }) {
           whileHover={{ opacity: 1, y: 0 }}
           className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity"
         >
-          <button className="px-6 py-3 bg-neon text-night rounded-full font-semibold flex items-center gap-2 hover:scale-105 transition-transform">
+          <a
+            href={`/portfolio/${project.slug}`}
+            className="px-6 py-3 bg-neon text-night rounded-full font-semibold flex items-center gap-2 hover:scale-105 transition-transform"
+          >
             <ExternalLink size={18} />
-            View Live
-          </button>
+            View Project
+          </a>
         </motion.div>
       </div>
 
@@ -116,21 +64,23 @@ function ProjectCard({ project, index }) {
         <h3 className="text-2xl font-bold mb-2 group-hover:text-neon transition-colors">
           {project.title}
         </h3>
-        <p className="text-white/60 text-sm mb-4">
+        <p className="text-white/60 text-sm mb-4 line-clamp-2">
           {project.description}
         </p>
 
-        {/* Tech Stack */}
-        <div className="flex flex-wrap gap-2">
-          {project.tech.map((tech) => (
-            <span 
-              key={tech}
-              className="text-xs px-2 py-1 rounded-md bg-white/5 text-white/70"
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
+        {/* Tech Stack (Tags) */}
+        {project.tags && project.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {project.tags.slice(0, 3).map((tag, i) => (
+              <span 
+                key={i}
+                className="text-xs px-2 py-1 rounded-md bg-white/5 text-white/70"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </motion.div>
   );
@@ -140,6 +90,12 @@ export default function Portfolio() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
   const [activeCategory, setActiveCategory] = useState('All');
 
+  // Fetch portfolios from Supabase
+  const { data: projects, loading, error } = usePortfolios({
+    orderBy: { column: 'created_at', ascending: false }
+  });
+
+  // Filter by category
   const filteredProjects = activeCategory === 'All' 
     ? projects 
     : projects.filter(p => p.category === activeCategory);
@@ -190,15 +146,38 @@ export default function Portfolio() {
           ))}
         </motion.div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-neon"></div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-20">
+            <p className="text-red-400">Error loading projects: {error}</p>
+          </div>
+        )}
+
         {/* Projects Grid */}
-        <motion.div 
-          layout
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-          {filteredProjects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} />
-          ))}
-        </motion.div>
+        {!loading && !error && (
+          <motion.div 
+            layout
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {filteredProjects.map((project, index) => (
+              <ProjectCard key={project.id} project={project} index={index} />
+            ))}
+          </motion.div>
+        )}
+
+        {/* No Projects */}
+        {!loading && !error && filteredProjects.length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-white/60 text-lg">No projects found in this category.</p>
+          </div>
+        )}
 
         {/* CTA */}
         <motion.div
@@ -207,14 +186,15 @@ export default function Portfolio() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="text-center mt-20"
         >
-          <motion.button
-            className="px-10 py-5 bg-gradient-to-r from-pink to-neon text-white rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-pink/30 transition-all"
+          <motion.a
+            href="/portfolio"
+            className="inline-block px-10 py-5 bg-gradient-to-r from-pink to-neon text-white rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-pink/30 transition-all"
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
             data-hover
           >
             View All Projects →
-          </motion.button>
+          </motion.a>
         </motion.div>
       </div>
     </section>

@@ -1,8 +1,9 @@
+// src/features/blog/BlogGrid.jsx
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useState } from 'react';
 import BlogCard from './BlogCard';
-import { blogPosts } from './blogData';
+import { useBlogs } from '../../hooks/useDatabase';
 
 const categories = ['All', 'Design', 'Development', 'Branding', 'Marketing', 'Technology', 'E-commerce'];
 
@@ -10,9 +11,41 @@ export default function BlogGrid() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
   const [activeCategory, setActiveCategory] = useState('All');
 
+  // Fetch blogs from Supabase
+  const { data: blogPosts, loading, error } = useBlogs({
+    orderBy: { column: 'created_at', ascending: false }
+  });
+
+  // Filter by category
   const filteredPosts = activeCategory === 'All'
     ? blogPosts
     : blogPosts.filter(post => post.category === activeCategory);
+
+  // Loading State
+  if (loading) {
+    return (
+      <section className="py-20 px-6 bg-night relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-neon"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Error State
+  if (error) {
+    return (
+      <section className="py-20 px-6 bg-night relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-20">
+            <p className="text-red-400 text-lg">Error loading blogs: {error}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section ref={ref} className="py-20 px-6 bg-night relative overflow-hidden">

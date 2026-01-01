@@ -1,14 +1,48 @@
+// src/features/portfolio/PortfolioDetail.jsx
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, CheckCircle, Calendar, User } from 'lucide-react';
-import { portfolioProjects } from './portfolioData';
+import { usePortfolioBySlug } from '../../hooks/useDatabase';
 
 export default function PortfolioDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
   
-  const project = portfolioProjects.find(p => p.slug === slug);
+  // Fetch project from Supabase by slug
+  const { data: project, loading, error } = usePortfolioBySlug(slug);
 
+  // Loading State
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-night flex items-center justify-center px-6 pt-32">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-neon mx-auto mb-4"></div>
+          <p className="text-white/60">Loading project...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error State
+  if (error) {
+    return (
+      <div className="min-h-screen bg-night flex items-center justify-center px-6 pt-32">
+        <div className="text-center">
+          <h1 className="text-4xl font-black mb-4 text-red-400">Error Loading Project</h1>
+          <p className="text-white/60 mb-8">{error}</p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            onClick={() => navigate('/portfolio')}
+            className="px-6 py-3 bg-gradient-to-r from-neon to-blue text-night rounded-full font-bold"
+          >
+            Back to Portfolio
+          </motion.button>
+        </div>
+      </div>
+    );
+  }
+
+  // Not Found State
   if (!project) {
     return (
       <div className="min-h-screen bg-night flex items-center justify-center px-6 pt-32">
@@ -86,31 +120,37 @@ export default function PortfolioDetail() {
 
               {/* Meta Info */}
               <div className="flex flex-wrap gap-6 mb-8">
-                <div className="flex items-center gap-2 text-white/60">
-                  <User size={20} style={{ color: project.color }} />
-                  <span className="text-sm">
-                    <span className="text-white/40">Client:</span> {project.client}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-white/60">
-                  <Calendar size={20} style={{ color: project.color }} />
-                  <span className="text-sm">
-                    <span className="text-white/40">Year:</span> {project.year}
-                  </span>
-                </div>
+                {project.client && (
+                  <div className="flex items-center gap-2 text-white/60">
+                    <User size={20} style={{ color: project.color }} />
+                    <span className="text-sm">
+                      <span className="text-white/40">Client:</span> {project.client}
+                    </span>
+                  </div>
+                )}
+                {project.year && (
+                  <div className="flex items-center gap-2 text-white/60">
+                    <Calendar size={20} style={{ color: project.color }} />
+                    <span className="text-sm">
+                      <span className="text-white/40">Year:</span> {project.year}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Tags */}
-              <div className="flex flex-wrap gap-2 mb-8">
-                {project.tags.map((tag, i) => (
-                  <span
-                    key={i}
-                    className="px-4 py-2 rounded-full text-sm bg-white/5 border border-white/10 text-white/80"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+              {project.tags && project.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-8">
+                  {project.tags.map((tag, i) => (
+                    <span
+                      key={i}
+                      className="px-4 py-2 rounded-full text-sm bg-white/5 border border-white/10 text-white/80"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               {/* CTA Button */}
               {project.link && (
@@ -138,7 +178,7 @@ export default function PortfolioDetail() {
             >
               <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
                 <img
-                  src={project.images[0]}
+                  src={project.thumbnail || (project.images && project.images[0]) || 'https://via.placeholder.com/800x600'}
                   alt={project.title}
                   className="w-full h-auto"
                 />
@@ -156,114 +196,114 @@ export default function PortfolioDetail() {
       </section>
 
       {/* Challenge & Solution Section */}
-      <section className="py-20 px-6 bg-gradient-to-b from-night to-night/95">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {/* Challenge */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="p-8 rounded-3xl bg-white/5 border border-white/10"
-            >
-              <h2 className="text-3xl font-black mb-4">
-                <span style={{ color: project.color }}>The Challenge</span>
-              </h2>
-              <p className="text-white/70 leading-relaxed">
-                {project.challenge}
-              </p>
-            </motion.div>
+      {(project.challenge || project.solution) && (
+        <section className="py-20 px-6 bg-gradient-to-b from-night to-night/95">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              {/* Challenge */}
+              {project.challenge && (
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="p-8 rounded-3xl bg-white/5 border border-white/10"
+                >
+                  <h2 className="text-3xl font-black mb-4">
+                    <span style={{ color: project.color }}>The Challenge</span>
+                  </h2>
+                  <p className="text-white/70 leading-relaxed">
+                    {project.challenge}
+                  </p>
+                </motion.div>
+              )}
 
-            {/* Solution */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="p-8 rounded-3xl bg-white/5 border border-white/10"
-            >
-              <h2 className="text-3xl font-black mb-4">
-                <span style={{ color: project.color }}>The Solution</span>
-              </h2>
-              <p className="text-white/70 leading-relaxed">
-                {project.solution}
-              </p>
-            </motion.div>
+              {/* Solution */}
+              {project.solution && (
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 }}
+                  className="p-8 rounded-3xl bg-white/5 border border-white/10"
+                >
+                  <h2 className="text-3xl font-black mb-4">
+                    <span style={{ color: project.color }}>The Solution</span>
+                  </h2>
+                  <p className="text-white/70 leading-relaxed">
+                    {project.solution}
+                  </p>
+                </motion.div>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Results Section */}
-      <section className="py-20 px-6 bg-night">
-        <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-4xl md:text-5xl font-black mb-4">
-              Results & <span className="text-gradient">Impact</span>
-            </h2>
-          </motion.div>
+      {project.results && (
+        <section className="py-20 px-6 bg-night">
+          <div className="max-w-5xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-4xl md:text-5xl font-black mb-4">
+                Results & <span className="text-gradient">Impact</span>
+              </h2>
+            </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {project.results.map((result, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="flex items-start gap-4 p-6 rounded-2xl bg-white/5 border border-white/10"
-              >
-                <CheckCircle size={24} style={{ color: project.color }} className="flex-shrink-0 mt-1" />
-                <p className="text-white/80 leading-relaxed">{result}</p>
-              </motion.div>
-            ))}
+            <div className="p-8 rounded-3xl bg-white/5 border border-white/10">
+              <p className="text-white/80 leading-relaxed whitespace-pre-line">
+                {project.results}
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Image Gallery */}
-      <section className="py-20 px-6 bg-gradient-to-b from-night to-night/95">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-4xl md:text-5xl font-black mb-4">
-              Project <span className="text-gradient">Gallery</span>
-            </h2>
-          </motion.div>
+      {project.images && project.images.length > 0 && (
+        <section className="py-20 px-6 bg-gradient-to-b from-night to-night/95">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-4xl md:text-5xl font-black mb-4">
+                Project <span className="text-gradient">Gallery</span>
+              </h2>
+            </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {project.images.map((image, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ scale: 1.05 }}
-                className="relative rounded-2xl overflow-hidden border border-white/10 aspect-video cursor-pointer"
-                data-hover
-              >
-                <img
-                  src={image}
-                  alt={`${project.title} - Image ${i + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </motion.div>
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {project.images.map((image, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ scale: 1.05 }}
+                  className="relative rounded-2xl overflow-hidden border border-white/10 aspect-video cursor-pointer"
+                  data-hover
+                >
+                  <img
+                    src={image}
+                    alt={`${project.title} - Image ${i + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Testimonial Section */}
-      {project.testimonial && (
+      {project.testimonial_text && (
         <section className="py-20 px-6 bg-night">
           <div className="max-w-4xl mx-auto">
             <motion.div
@@ -274,11 +314,13 @@ export default function PortfolioDetail() {
             >
               <div className="text-6xl mb-6" style={{ color: project.color }}>❝</div>
               <p className="text-2xl md:text-3xl font-bold text-white/90 leading-relaxed mb-6">
-                {project.testimonial.text}
+                {project.testimonial_text}
               </p>
-              <p className="text-white/60 font-medium">
-                — {project.testimonial.author}
-              </p>
+              {project.testimonial_author && (
+                <p className="text-white/60 font-medium">
+                  — {project.testimonial_author}
+                </p>
+              )}
             </motion.div>
           </div>
         </section>

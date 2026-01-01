@@ -1,62 +1,15 @@
+// src/features/services/ServicesHeroWithGrid.jsx
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { 
-  Palette, Code2, ShoppingCart, TrendingUp, Package, MessageSquare, ArrowRight 
-} from 'lucide-react';
-
-const services = [
-  {
-    icon: Palette,
-    title: 'Brand Identity',
-    desc: 'Custom logos and complete brand identity that makes you stand out',
-    features: ['Logo Design', 'Brand Guidelines', 'Color Palette'],
-    slug: 'brand-identity',
-    color: '#00F5A0',
-  },
-  {
-    icon: Code2,
-    title: 'Web Development',
-    desc: 'Fast, responsive, and SEO-optimized websites built with latest tech',
-    features: ['React.js', 'Responsive Design', 'SEO Ready'],
-    slug: 'web-development',
-    color: '#0EA5E9',
-  },
-  {
-    icon: ShoppingCart,
-    title: 'E-commerce',
-    desc: 'Convert visitors into customers with optimized online stores',
-    features: ['Shopify Setup', 'Payment Gateway', 'Inventory'],
-    slug: 'ecommerce',
-    color: '#10B981',
-  },
-  {
-    icon: Package,
-    title: 'Packaging Design',
-    desc: 'Eye-catching packaging that sells on retail shelves',
-    features: ['Print Ready', '3D Mockups', 'Material Advice'],
-    slug: 'packaging-design',
-    color: '#F59E0B',
-  },
-  {
-    icon: MessageSquare,
-    title: 'Digital Marketing',
-    desc: 'Data-driven strategies to grow your business online',
-    features: ['Social Media', 'Google Ads', 'Analytics'],
-    slug: 'digital-marketing',
-    color: '#EC4899',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Business Consulting',
-    desc: 'Expert guidance for digital transformation and growth',
-    features: ['Strategy', 'Analysis', 'Implementation'],
-    slug: 'business-consulting',
-    color: '#8B5CF6',
-  },
-];
+import { ArrowRight } from 'lucide-react';
+import * as Icons from 'lucide-react';
+import { useServices } from '../../hooks/useDatabase';
 
 function ServiceCard({ service, i }) {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
+
+  // Get icon component dynamically
+  const IconComponent = Icons[service.icon] || Icons.Code2;
 
   return (
     <motion.a
@@ -87,7 +40,7 @@ function ServiceCard({ service, i }) {
             background: `linear-gradient(135deg, ${service.color}40, ${service.color}20)`,
           }}
         >
-          <service.icon size={32} style={{ color: service.color }} />
+          <IconComponent size={32} style={{ color: service.color }} />
         </motion.div>
 
         {/* Title */}
@@ -97,20 +50,22 @@ function ServiceCard({ service, i }) {
 
         {/* Description */}
         <p className="text-white/60 mb-6 leading-relaxed">
-          {service.desc}
+          {service.description}
         </p>
 
         {/* Features */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {service.features.map((feature, i) => (
-            <span
-              key={i}
-              className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70"
-            >
-              {feature}
-            </span>
-          ))}
-        </div>
+        {service.features && service.features.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            {service.features.slice(0, 3).map((feature, i) => (
+              <span
+                key={i}
+                className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70"
+              >
+                {feature}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* CTA */}
         <div
@@ -142,6 +97,11 @@ function ServiceCard({ service, i }) {
 export default function ServicesHeroWithGrid() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
+  // Fetch services from Supabase
+  const { data: services, loading, error } = useServices({
+    orderBy: { column: 'created_at', ascending: false }
+  });
+
   return (
     <section ref={ref} className="py-20 px-6 bg-night relative overflow-hidden">
       {/* Background */}
@@ -162,36 +122,60 @@ export default function ServicesHeroWithGrid() {
           </p>
         </motion.div>
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {services.map((service, i) => (
-            <ServiceCard key={service.slug} service={service} i={i} />
-          ))}
-        </div>
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-neon"></div>
+          </div>
+        )}
 
-        {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6 }}
-          className="text-center pt-12 border-t border-white/10"
-        >
-          <p className="text-white/60 mb-6 text-lg">
-            Need a custom solution? Let's discuss your project.
-          </p>
-          <motion.a
-            href="/contact"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-neon to-blue text-night rounded-full font-bold shadow-lg hover:shadow-neon/50 transition-all"
-            data-hover
-          >
-            Get Free Consultation
-            <ArrowRight size={20} />
-          </motion.a>
-        </motion.div>
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-20">
+            <p className="text-red-400 text-lg">Error loading services: {error}</p>
+          </div>
+        )}
+
+        {/* Services Grid */}
+        {!loading && !error && services.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+              {services.map((service, i) => (
+                <ServiceCard key={service.id} service={service} i={i} />
+              ))}
+            </div>
+
+            {/* Bottom CTA */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.6 }}
+              className="text-center pt-12 border-t border-white/10"
+            >
+              <p className="text-white/60 mb-6 text-lg">
+                Need a custom solution? Let's discuss your project.
+              </p>
+              <motion.a
+                href="/contact"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-neon to-blue text-night rounded-full font-bold shadow-lg hover:shadow-neon/50 transition-all"
+                data-hover
+              >
+                Get Free Consultation
+                <ArrowRight size={20} />
+              </motion.a>
+            </motion.div>
+          </>
+        )}
+
+        {/* No Services State */}
+        {!loading && !error && services.length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-white/60 text-lg">No services available yet.</p>
+          </div>
+        )}
       </div>
     </section>
   );
 }
-  

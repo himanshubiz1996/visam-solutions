@@ -1,14 +1,51 @@
+// src/features/blog/BlogDetail.jsx
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Clock, User, Share2, Facebook, Twitter, Linkedin } from 'lucide-react';
-import { blogPosts } from './blogData';
+import { useBlogBySlug, useBlogs } from '../../hooks/useDatabase';
 
 export default function BlogDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
   
-  const post = blogPosts.find(p => p.id === parseInt(slug));
+  // Fetch single blog by slug
+  const { data: post, loading, error } = useBlogBySlug(slug);
+  
+  // Fetch all blogs for related posts
+  const { data: allBlogs } = useBlogs();
 
+  // Loading State
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-night flex items-center justify-center px-6 pt-32">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-neon mx-auto mb-4"></div>
+          <p className="text-white/60">Loading article...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error State
+  if (error) {
+    return (
+      <div className="min-h-screen bg-night flex items-center justify-center px-6 pt-32">
+        <div className="text-center">
+          <h1 className="text-4xl font-black mb-4 text-red-400">Error Loading Post</h1>
+          <p className="text-white/60 mb-8">{error}</p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            onClick={() => navigate('/blog')}
+            className="px-6 py-3 bg-gradient-to-r from-neon to-blue text-night rounded-full font-bold"
+          >
+            Back to Blog
+          </motion.button>
+        </div>
+      </div>
+    );
+  }
+
+  // Not Found State
   if (!post) {
     return (
       <div className="min-h-screen bg-night flex items-center justify-center px-6 pt-32">
@@ -27,8 +64,20 @@ export default function BlogDetail() {
     );
   }
 
+  // Format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
   // Related posts (same category)
-  const relatedPosts = blogPosts.filter(p => p.category === post.category && p.id !== post.id).slice(0, 3);
+  const relatedPosts = allBlogs
+    ?.filter(p => p.category === post.category && p.id !== post.id)
+    .slice(0, 3) || [];
 
   return (
     <div className="bg-night">
@@ -93,12 +142,14 @@ export default function BlogDetail() {
             </div>
             <div className="flex items-center gap-2">
               <Calendar size={18} style={{ color: post.color }} />
-              <span className="text-sm">{post.date}</span>
+              <span className="text-sm">{formatDate(post.created_at)}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock size={18} style={{ color: post.color }} />
-              <span className="text-sm">{post.readTime}</span>
-            </div>
+            {post.read_time && (
+              <div className="flex items-center gap-2">
+                <Clock size={18} style={{ color: post.color }} />
+                <span className="text-sm">{post.read_time}</span>
+              </div>
+            )}
           </motion.div>
 
           {/* Share Buttons */}
@@ -138,28 +189,30 @@ export default function BlogDetail() {
       </section>
 
       {/* Featured Image */}
-      <section className="px-6 pb-12">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="max-w-5xl mx-auto"
-        >
-          <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-            <img
-              src={post.image}
-              alt={post.title}
-              className="w-full h-auto"
-            />
-            <div 
-              className="absolute inset-0 opacity-20"
-              style={{
-                background: `linear-gradient(135deg, ${post.color}00, ${post.color}80)`,
-              }}
-            />
-          </div>
-        </motion.div>
-      </section>
+      {post.image && (
+        <section className="px-6 pb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="max-w-5xl mx-auto"
+          >
+            <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+              <img
+                src={post.image}
+                alt={post.title}
+                className="w-full h-auto"
+              />
+              <div 
+                className="absolute inset-0 opacity-20"
+                style={{
+                  background: `linear-gradient(135deg, ${post.color}00, ${post.color}80)`,
+                }}
+              />
+            </div>
+          </motion.div>
+        </section>
+      )}
 
       {/* Article Content */}
       <section className="py-12 px-6">
@@ -169,139 +222,38 @@ export default function BlogDetail() {
           transition={{ delay: 0.6 }}
           className="max-w-3xl mx-auto"
         >
-          {/* Introduction */}
-          <div className="prose prose-invert prose-lg max-w-none mb-12">
-            <p className="text-xl text-white/80 leading-relaxed mb-6">
-              {post.excerpt}
-            </p>
-
-            <h2 className="text-3xl font-black mt-12 mb-6" style={{ color: post.color }}>
-              Introduction
-            </h2>
-            <p className="text-white/70 leading-relaxed">
-              In today's rapidly evolving digital landscape, staying ahead of the curve is essential for success. 
-              This comprehensive guide explores the latest trends, best practices, and actionable strategies that 
-              can help you achieve your goals. Whether you're a beginner or an experienced professional, you'll 
-              find valuable insights to elevate your skills and drive meaningful results.
-            </p>
-
-            <h2 className="text-3xl font-black mt-12 mb-6" style={{ color: post.color }}>
-              Key Takeaways
-            </h2>
-            <ul className="space-y-3 text-white/70">
-              <li className="flex items-start gap-3">
-                <span style={{ color: post.color }}>▸</span>
-                <span>Understanding the fundamentals is crucial for long-term success</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span style={{ color: post.color }}>▸</span>
-                <span>Implementing best practices can significantly improve outcomes</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span style={{ color: post.color }}>▸</span>
-                <span>Continuous learning and adaptation are essential in this field</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span style={{ color: post.color }}>▸</span>
-                <span>Measuring results and iterating based on data is key</span>
-              </li>
-            </ul>
-
-            <h2 className="text-3xl font-black mt-12 mb-6" style={{ color: post.color }}>
-              Why This Matters
-            </h2>
-            <p className="text-white/70 leading-relaxed mb-6">
-              The digital ecosystem is constantly evolving, and what worked yesterday might not work tomorrow. 
-              By staying informed about the latest developments and implementing proven strategies, you can 
-              maintain a competitive edge and achieve sustainable growth.
-            </p>
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 my-12">
-              <p className="text-xl italic text-white/90 leading-relaxed">
-                "Success in the digital age requires a combination of creativity, technical expertise, 
-                and strategic thinking. Those who master these elements will thrive in the years to come."
+          {/* Excerpt */}
+          {post.excerpt && (
+            <div className="prose prose-invert prose-lg max-w-none mb-12">
+              <p className="text-xl text-white/80 leading-relaxed mb-6">
+                {post.excerpt}
               </p>
-              <p className="text-white/50 mt-4">— Industry Expert</p>
             </div>
+          )}
 
-            <h2 className="text-3xl font-black mt-12 mb-6" style={{ color: post.color }}>
-              Step-by-Step Guide
-            </h2>
-            <p className="text-white/70 leading-relaxed mb-6">
-              Let's break down the process into actionable steps that you can implement immediately:
-            </p>
-
-            <div className="space-y-6 mb-12">
-              {[1, 2, 3, 4, 5].map((step) => (
-                <div key={step} className="flex gap-4 items-start">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-black"
-                    style={{
-                      background: `linear-gradient(135deg, ${post.color}40, ${post.color}20)`,
-                      color: post.color,
-                    }}
-                  >
-                    {step}
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold mb-2">Step {step}: Getting Started</h3>
-                    <p className="text-white/60 leading-relaxed">
-                      Begin by assessing your current situation and identifying areas for improvement. 
-                      This foundational step will guide your strategy moving forward.
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <h2 className="text-3xl font-black mt-12 mb-6" style={{ color: post.color }}>
-              Common Mistakes to Avoid
-            </h2>
-            <p className="text-white/70 leading-relaxed mb-6">
-              Even experienced professionals make these mistakes. Here's what to watch out for:
-            </p>
-            <ul className="space-y-3 text-white/70 mb-12">
-              <li className="flex items-start gap-3">
-                <span className="text-red-500">✗</span>
-                <span>Rushing implementation without proper planning</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-red-500">✗</span>
-                <span>Ignoring data and analytics in decision-making</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-red-500">✗</span>
-                <span>Not allocating sufficient resources for success</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-red-500">✗</span>
-                <span>Failing to adapt to changing market conditions</span>
-              </li>
-            </ul>
-
-            <h2 className="text-3xl font-black mt-12 mb-6" style={{ color: post.color }}>
-              Conclusion
-            </h2>
-            <p className="text-white/70 leading-relaxed">
-              Mastering these concepts takes time and dedication, but the results are well worth the effort. 
-              By following the strategies outlined in this guide and avoiding common pitfalls, you'll be 
-              well-positioned to achieve your goals and stay ahead of the competition. Remember, success 
-              is a journey, not a destination—keep learning, adapting, and growing.
-            </p>
-          </div>
+          {/* Main Content (HTML from Supabase) */}
+          <div 
+            className="prose prose-invert prose-lg max-w-none mb-12"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+            style={{
+              '--color-accent': post.color
+            }}
+          />
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-2 pt-8 border-t border-white/10">
-            <span className="text-white/60 text-sm">Tags:</span>
-            {['Tutorial', 'Best Practices', 'Guide', '2026 Trends'].map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1 rounded-full text-xs bg-white/5 border border-white/10 text-white/70"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-8 border-t border-white/10">
+              <span className="text-white/60 text-sm">Tags:</span>
+              {post.tags.map((tag, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 rounded-full text-xs bg-white/5 border border-white/10 text-white/70"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </motion.div>
       </section>
 
@@ -325,7 +277,7 @@ export default function BlogDetail() {
                 VS
               </div>
               <div>
-                <h3 className="text-2xl font-black mb-2">Visam Solutions Team</h3>
+                <h3 className="text-2xl font-black mb-2">{post.author}</h3>
                 <p className="text-white/60 leading-relaxed mb-4">
                   We're a team of passionate designers, developers, and marketers dedicated to 
                   helping businesses grow through innovative digital solutions. With over 7 years 
@@ -382,7 +334,7 @@ export default function BlogDetail() {
               {relatedPosts.map((relatedPost, i) => (
                 <motion.a
                   key={relatedPost.id}
-                  href={`/blog/${relatedPost.id}`}
+                  href={`/blog/${relatedPost.slug}`}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}

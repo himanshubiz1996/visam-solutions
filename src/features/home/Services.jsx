@@ -1,48 +1,14 @@
+// src/features/home/Services.jsx
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { Code2, ShoppingCart, Blocks, Database, Palette, Rocket } from 'lucide-react';
-
-const services = [
-  {
-    icon: Code2,
-    title: 'Custom React Apps',
-    description: 'Lightning-fast web applications with modern React, Vite & TypeScript. Progressive Web Apps with offline support and blazing performance.',
-    color: '#00F5A0',
-  },
-  {
-    icon: ShoppingCart,
-    title: 'Shopify Stores',
-    description: 'High-converting e-commerce experiences with custom themes, apps, and seamless checkout flows.',
-    color: '#0EA5E9',
-  },
-  {
-    icon: Blocks,
-    title: 'WordPress CMS',
-    description: 'Optimized content management systems with custom plugins, headless architecture, and SEO excellence.',
-    color: '#FF008C',
-  },
-  {
-    icon: Database,
-    title: 'Backend & APIs',
-    description: 'Scalable Supabase, Firebase & Node.js solutions with real-time data sync and secure authentication.',
-    color: '#8B5CF6',
-  },
-  {
-    icon: Palette,
-    title: 'UI/UX Design',
-    description: 'Beautiful interfaces that convert visitors into customers. Figma to production-ready components.',
-    color: '#F59E0B',
-  },
-  {
-    icon: Rocket,
-    title: 'Performance',
-    description: 'Lighthouse 100/100 guaranteed. Core Web Vitals optimization, lazy loading, and CDN integration.',
-    color: '#10B981',
-  },
-];
+import * as Icons from 'lucide-react';
+import { useServices } from '../../hooks/useDatabase';
 
 function ServiceCard({ service, index }) {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
+
+  // Get icon component dynamically
+  const IconComponent = Icons[service.icon] || Icons.Code2;
 
   return (
     <motion.div
@@ -84,7 +50,7 @@ function ServiceCard({ service, index }) {
               boxShadow: `0 0 30px ${service.color}30`
             }}
           >
-            <service.icon size={32} style={{ color: service.color }} />
+            <IconComponent size={32} style={{ color: service.color }} />
           </div>
         </motion.div>
 
@@ -95,15 +61,16 @@ function ServiceCard({ service, index }) {
           {service.description}
         </p>
 
-        {/* Hover Arrow */}
-        <motion.div
+        {/* Hover Arrow with Link */}
+        <motion.a
+          href={`/services/${service.slug}`}
           initial={{ opacity: 0, x: -10 }}
           whileHover={{ opacity: 1, x: 0 }}
           className="mt-auto pt-6 flex items-center gap-2 text-sm font-medium"
           style={{ color: service.color }}
         >
           Learn more →
-        </motion.div>
+        </motion.a>
       </div>
     </motion.div>
   );
@@ -111,6 +78,14 @@ function ServiceCard({ service, index }) {
 
 export default function Services() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+
+  // Fetch services from Supabase (limit to 6 for homepage)
+  const { data: allServices, loading, error } = useServices({
+    orderBy: { column: 'created_at', ascending: false }
+  });
+
+  // Get first 6 services for homepage
+  const services = allServices.slice(0, 6);
 
   return (
     <section ref={ref} className="py-32 px-6 bg-night relative overflow-hidden">
@@ -135,29 +110,55 @@ export default function Services() {
           </p>
         </motion.div>
 
-        {/* Equal Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, index) => (
-            <ServiceCard key={service.title} service={service} index={index} />
-          ))}
-        </div>
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-neon"></div>
+          </div>
+        )}
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="text-center mt-20"
-        >
-          <motion.button
-            className="px-10 py-5 bg-gradient-to-r from-neon to-blue text-night rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-neon/30 transition-all"
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            data-hover
-          >
-            Explore All Services →
-          </motion.button>
-        </motion.div>
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-20">
+            <p className="text-red-400">Error loading services: {error}</p>
+          </div>
+        )}
+
+        {/* Services Grid */}
+        {!loading && !error && services.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {services.map((service, index) => (
+                <ServiceCard key={service.id} service={service} index={index} />
+              ))}
+            </div>
+
+            {/* CTA */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-center mt-20"
+            >
+              <motion.a
+                href="/services"
+                className="inline-block px-10 py-5 bg-gradient-to-r from-neon to-blue text-night rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-neon/30 transition-all"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                data-hover
+              >
+                Explore All Services →
+              </motion.a>
+            </motion.div>
+          </>
+        )}
+
+        {/* No Services State */}
+        {!loading && !error && services.length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-white/60 text-lg">No services available yet.</p>
+          </div>
+        )}
       </div>
     </section>
   );

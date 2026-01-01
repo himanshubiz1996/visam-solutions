@@ -1,96 +1,155 @@
 import { motion } from 'framer-motion';
-import { Linkedin, Github, Twitter, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
+
+// Inline Logo Component
+function Logo({ className = '' }) {
+  return (
+    <a href="/" className={`inline-block ${className}`}>
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        className="flex items-center gap-3 group"
+      >
+        <div className="relative">
+          <motion.div
+            animate={{ rotate: [0, 5, 0] }}
+            transition={{ duration: 3, repeat: Infinity }}
+            className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon via-blue to-purple flex items-center justify-center relative overflow-hidden"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+              className="absolute inset-0 bg-gradient-to-br from-neon/50 to-purple/50 blur-sm"
+            />
+            <span className="relative z-10 text-night font-black text-xl">VS</span>
+          </motion.div>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-xl font-black leading-none">
+            <span className="text-gradient">VISAM</span>
+          </span>
+          <span className="text-[10px] font-medium text-white/50 leading-none mt-0.5 tracking-wider">
+            SOLUTIONS
+          </span>
+        </div>
+      </motion.div>
+    </a>
+  );
+}
 
 export default function Footer() {
-  const socialLinks = [
-    { icon: Linkedin, href: 'https://linkedin.com/company/visam-solutions', label: 'LinkedIn' },
-    { icon: Github, href: 'https://github.com/visam-solutions', label: 'GitHub' },
-    { icon: Twitter, href: 'https://twitter.com/visamtech', label: 'Twitter' },
-  ];
-
   return (
-    <footer className="bg-night border-t border-white/10 relative overflow-hidden">
-      {/* Background Effect */}
-      <div className="absolute inset-0 bg-gradient-to-t from-neon/5 to-transparent" />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+    <footer className="bg-night border-t border-white/10 py-16 px-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
-          <div className="md:col-span-2">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="text-3xl font-bold mb-4"
-            >
-              VISAM<span className="text-neon">•</span>
-            </motion.div>
-            <p className="text-white/60 mb-6 max-w-md">
-              Full-stack web development studio based in Jodhpur, Rajasthan. 
-              Crafting digital experiences that convert.
+          <div>
+            <Logo className="mb-4" />
+            <p className="text-white/60 text-sm leading-relaxed mb-4">
+              Crafting digital experiences that transform businesses since 2017.
             </p>
-            <div className="flex gap-4">
-              {socialLinks.map((social) => (
-                <motion.a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ scale: 1.1, y: -2 }}
-                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-neon/20 transition-colors"
-                  data-hover
-                >
-                  <social.icon size={18} className="text-white/70 hover:text-neon" />
-                </motion.a>
-              ))}
+            <div className="flex gap-3">
+              <motion.a
+                whileHover={{ scale: 1.1, y: -2 }}
+                href="https://facebook.com"
+                target="_blank"
+                className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-neon hover:border-neon transition-all"
+                data-hover
+              >
+                <Facebook size={18} />
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.1, y: -2 }}
+                href="https://instagram.com/visam_solutions"
+                target="_blank"
+                className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-pink hover:border-pink transition-all"
+                data-hover
+              >
+                <Instagram size={18} />
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.1, y: -2 }}
+                href="https://linkedin.com/company/visam-graphics"
+                target="_blank"
+                className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-blue hover:border-blue transition-all"
+                data-hover
+              >
+                <Linkedin size={18} />
+              </motion.a>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-bold mb-4">Quick Links</h3>
-            <ul className="space-y-3">
-              {['About', 'Services', 'Portfolio', 'Blog', 'Contact'].map((link) => (
-                <li key={link}>
-                  <a 
-                    href={`/${link.toLowerCase()}`}
-                    className="text-white/60 hover:text-neon transition-colors"
-                  >
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <h4 className="font-bold mb-4 text-white">Quick Links</h4>
+            <div className="space-y-3">
+              <a href="/about" className="block text-white/60 hover:text-neon text-sm transition-colors">
+                About Us
+              </a>
+              <a href="/services" className="block text-white/60 hover:text-neon text-sm transition-colors">
+                Services
+              </a>
+              <a href="/portfolio" className="block text-white/60 hover:text-neon text-sm transition-colors">
+                Portfolio
+              </a>
+              <a href="/blog" className="block text-white/60 hover:text-neon text-sm transition-colors">
+                Blog
+              </a>
+              <a href="/contact" className="block text-white/60 hover:text-neon text-sm transition-colors">
+                Contact
+              </a>
+            </div>
+          </div>
+
+          {/* Services */}
+          <div>
+            <h4 className="font-bold mb-4 text-white">Our Services</h4>
+            <div className="space-y-3 text-sm text-white/60">
+              <p className="hover:text-neon transition-colors cursor-pointer">Brand Identity Design</p>
+              <p className="hover:text-neon transition-colors cursor-pointer">Web Development</p>
+              <p className="hover:text-neon transition-colors cursor-pointer">E-commerce Solutions</p>
+              <p className="hover:text-neon transition-colors cursor-pointer">Digital Marketing</p>
+              <p className="hover:text-neon transition-colors cursor-pointer">Packaging Design</p>
+            </div>
           </div>
 
           {/* Contact Info */}
           <div>
-            <h3 className="font-bold mb-4">Get In Touch</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2 text-white/60">
-                <MapPin size={18} className="mt-1 flex-shrink-0 text-neon" />
-                <span>Jodhpur, Rajasthan, India</span>
-              </li>
-              <li className="flex items-center gap-2 text-white/60">
-                <Phone size={18} className="flex-shrink-0 text-neon" />
-                <a href="tel:+919876543210" className="hover:text-neon transition-colors">
-                  +91 98765 43210
-                </a>
-              </li>
-              <li className="flex items-center gap-2 text-white/60">
-                <Mail size={18} className="flex-shrink-0 text-neon" />
-                <a href="mailto:hello@visam.solutions" className="hover:text-neon transition-colors">
-                  hello@visam.solutions
-                </a>
-              </li>
-            </ul>
+            <h4 className="font-bold mb-4 text-white">Contact Us</h4>
+            <div className="space-y-3">
+              <a
+                href="mailto:mukulyadav111@gmail.com"
+                className="flex items-start gap-3 text-sm text-white/60 hover:text-neon transition-colors group"
+              >
+                <Mail size={18} className="mt-0.5 flex-shrink-0 group-hover:text-neon" />
+                <span>mukulyadav111@gmail.com</span>
+              </a>
+              <a
+                href="tel:+917073785326"
+                className="flex items-start gap-3 text-sm text-white/60 hover:text-neon transition-colors group"
+              >
+                <Phone size={18} className="mt-0.5 flex-shrink-0 group-hover:text-neon" />
+                <span>+91 70737 85326</span>
+              </a>
+              <div className="flex items-start gap-3 text-sm text-white/60">
+                <MapPin size={18} className="mt-0.5 flex-shrink-0" />
+                <span>IStart Nest, Jodhpur, Rajasthan 342011</span>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-white/60 text-sm">
-          <p>© 2026 VISAM Solutions. All rights reserved.</p>
-          <div className="flex gap-6">
-            <a href="/privacy" className="hover:text-neon transition-colors">Privacy Policy</a>
-            <a href="/terms" className="hover:text-neon transition-colors">Terms of Service</a>
+        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-white/50 text-sm">
+            © 2026 Visam Solutions. All rights reserved.
+          </p>
+          <div className="flex gap-6 text-sm text-white/50">
+            <a href="/privacy" className="hover:text-neon transition-colors">
+              Privacy Policy
+            </a>
+            <a href="/terms" className="hover:text-neon transition-colors">
+              Terms of Service
+            </a>
           </div>
         </div>
       </div>

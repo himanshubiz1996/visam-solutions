@@ -1,28 +1,35 @@
-import CustomCursor from './components/CustomCursor';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-import WhatsAppButton from './components/WhatsAppButton';
-import Hero from './features/home/Hero';
-import Stats from './features/home/Stats';
-import Services from './features/home/Services';
-import Portfolio from './features/home/Portfolio';
-import Testimonials from './features/home/Testimonials';
+import MouseFollower from './components/MouseFollower';
+import HomePage from './pages/HomePage';
+import AboutPage from './features/about';
+import ServicesPage from './features/services';
+import ServiceDetail from './features/services/ServiceDetail';
+import PortfolioPage from './features/portfolio';
+import PortfolioDetail from './features/portfolio/PortfolioDetail';
+import BlogPage from './features/blog';
+import BlogDetail from './features/blog/BlogDetail';
+import ContactPage from './features/contact';
 
 function App() {
   return (
-    <>
-      <CustomCursor />
+    <Router>
+      <MouseFollower />
       <Navbar />
-      <main>
-        <Hero />
-        <Stats />
-        <Services />
-        <Portfolio />
-        <Testimonials />
-      </main>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/services/:slug" element={<ServiceDetail />} />
+        <Route path="/portfolio" element={<PortfolioPage />} />
+        <Route path="/portfolio/:slug" element={<PortfolioDetail />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogDetail />} />
+        <Route path="/contact" element={<ContactPage />} />
+      </Routes>
       <Footer />
-      <WhatsAppButton />
-    </>
+    </Router>
   );
 }
 

@@ -17,12 +17,16 @@ import ContactPage from './features/contact';
 
 // Admin Pages
 import Login from './features/admin/Login';
-import CreateAdmin from './features/admin/CreateAdmin';  // ✅ Add this
+import CreateAdmin from './features/admin/CreateAdmin';
 import Dashboard from './features/admin/Dashboard';
 import PortfolioManager from './features/admin/portfolio/PortfolioManager';
 import ServiceManager from './features/admin/services/ServiceManager';
 import BlogManager from './features/admin/blog/BlogManager';
 import ProtectedRoute from './components/ProtectedRoute';
+
+// ✅ Isko Import Karo (Messages dekhne ke liye)
+// Agar file name ya folder alag hai toh yahan path sahi kar lena bhai
+import ContactManager from './features/admin/contact/ContactManager.jsx'; 
 
 function App() {
   return (
@@ -48,7 +52,7 @@ function App() {
         ======================================== */}
         <Route path="/admin" element={<Login />} />
         <Route path="/admin/login" element={<Login />} />
-        <Route path="/admin/create" element={<CreateAdmin />} />  {/* ✅ Add this */}
+        <Route path="/admin/create" element={<CreateAdmin />} />
 
         {/* ========================================
             PROTECTED ADMIN ROUTES
@@ -64,6 +68,9 @@ function App() {
           <Route path="/admin/portfolio" element={<PortfolioManager />} />
           <Route path="/admin/services" element={<ServiceManager />} />
           <Route path="/admin/blog" element={<BlogManager />} />
+          
+          {/* ✅ Naya Route: Messages ke liye */}
+          <Route path="/admin/contacts" element={<ContactManager />} />
         </Route>
       </Routes>
     </Router>

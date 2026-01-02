@@ -146,13 +146,7 @@ export default function AdminLayout() {
 
             {/* Bottom Actions */}
             <div className="p-4 border-t border-white/10 space-y-2">
-              <NavLink
-                to="/admin/settings"
-                className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all"
-              >
-                <Settings size={20} className="text-white/60" />
-                <span className="text-white/60 font-medium">Settings</span>
-              </NavLink>
+             
 
               <button
                 onClick={handleSignOut}

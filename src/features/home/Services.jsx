@@ -1,17 +1,17 @@
-// src/features/home/Services.jsx
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import * as Icons from 'lucide-react';
 import { useServices } from '../../hooks/useDatabase';
 
+
 function ServiceCard({ service, index }) {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
 
-  // Get icon component dynamically
   const IconComponent = Icons[service.icon] || Icons.Code2;
 
   return (
-    <motion.div
+    <motion.a
+      href={`/services/${service.slug}`}
       ref={ref}
       initial={{ opacity: 0, y: 50, rotateX: -15 }}
       animate={inView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
@@ -21,7 +21,7 @@ function ServiceCard({ service, index }) {
         rotateX: 5,
         transition: { duration: 0.3 } 
       }}
-      className="group relative p-8 rounded-3xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all overflow-hidden min-h-[320px]"
+      className="group relative p-8 rounded-3xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all overflow-hidden min-h-[320px] block cursor-pointer"
       style={{ 
         transformStyle: 'preserve-3d',
         perspective: '1000px'
@@ -61,31 +61,29 @@ function ServiceCard({ service, index }) {
           {service.description}
         </p>
 
-        {/* Hover Arrow with Link */}
-        <motion.a
-          href={`/services/${service.slug}`}
-          initial={{ opacity: 0, x: -10 }}
-          whileHover={{ opacity: 1, x: 0 }}
-          className="mt-auto pt-6 flex items-center gap-2 text-sm font-medium"
+        {/* Learn More - Shows on card hover */}
+        <motion.div
+          className="mt-auto pt-6 flex items-center gap-2 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           style={{ color: service.color }}
         >
           Learn more →
-        </motion.a>
+        </motion.div>
       </div>
-    </motion.div>
+    </motion.a>
   );
 }
+
 
 export default function Services() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
-  // Fetch services from Supabase (limit to 6 for homepage)
+  // Fetch services from Supabase
   const { data: allServices, loading, error } = useServices({
     orderBy: { column: 'created_at', ascending: false }
   });
 
-  // Get first 6 services for homepage
-  const services = allServices.slice(0, 6);
+  // Get first 6 published services for homepage
+  const services = allServices?.filter(s => s.published).slice(0, 6) || [];
 
   return (
     <section ref={ref} className="py-32 px-6 bg-night relative overflow-hidden">
@@ -133,7 +131,7 @@ export default function Services() {
               ))}
             </div>
 
-            {/* CTA */}
+            {/* CTA Button */}
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}

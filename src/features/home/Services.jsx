@@ -96,15 +96,15 @@ export default function Services() {
           initial={{ opacity: 0, y: 50 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="mb-20"
+          className="text-center mb-12"
         >
           <h2 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
             What We
             <br />
             <span className="text-gradient">Create</span>
           </h2>
-          <p className="text-white/60 text-lg max-w-2xl">
-            Full-stack development services powered by the latest technologies
+          <p className="text-white/60 text-lg max-w-2xl mx-auto">
+            Branding, packaging, digital marketing, and creative solutions that grow your business in Jodhpur and beyond
           </p>
         </motion.div>
 

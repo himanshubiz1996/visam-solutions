@@ -50,7 +50,7 @@ export default function Footer() {
             <div className="flex gap-3">
               <motion.a
                 whileHover={{ scale: 1.1, y: -2 }}
-                href="https://facebook.com"
+                href="https://www.facebook.com/share/1C3Bb2AT5F/"
                 target="_blank"
                 className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-neon hover:border-neon transition-all"
                 data-hover
@@ -59,7 +59,7 @@ export default function Footer() {
               </motion.a>
               <motion.a
                 whileHover={{ scale: 1.1, y: -2 }}
-                href="https://instagram.com/visam_solutions"
+                href="https://www.instagram.com/mukul.visam?igsh=MTA2MWN6aTJqNGZiYQ=="
                 target="_blank"
                 className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-pink hover:border-pink transition-all"
                 data-hover
@@ -68,7 +68,7 @@ export default function Footer() {
               </motion.a>
               <motion.a
                 whileHover={{ scale: 1.1, y: -2 }}
-                href="https://linkedin.com/company/visam-graphics"
+                href="https://linkedin.com/in/mukul-yadav-3a82a01b9"
                 target="_blank"
                 className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-blue hover:border-blue transition-all"
                 data-hover
@@ -103,12 +103,25 @@ export default function Footer() {
           {/* Services */}
           <div>
             <h4 className="font-bold mb-4 text-white">Our Services</h4>
-            <div className="space-y-3 text-sm text-white/60">
-              <p className="hover:text-neon transition-colors cursor-pointer">Brand Identity Design</p>
-              <p className="hover:text-neon transition-colors cursor-pointer">Web Development</p>
-              <p className="hover:text-neon transition-colors cursor-pointer">E-commerce Solutions</p>
-              <p className="hover:text-neon transition-colors cursor-pointer">Digital Marketing</p>
-              <p className="hover:text-neon transition-colors cursor-pointer">Packaging Design</p>
+            <div className="space-y-3">
+              <a href="services/brand-identity-strategy" className="block text-white/60 hover:text-neon text-sm transition-colors">
+                Brand Identity & Strategy
+              </a>
+              <a href="/services/product-packaging-design" className="block text-white/60 hover:text-neon text-sm transition-colors">
+                Product Packaging Design
+              </a>
+              <a href="/services/product-photography-videography" className="block text-white/60 hover:text-neon text-sm transition-colors">
+                Product Photography
+              </a>
+              <a href="/services/ecommerce-business-websites" className="block text-white/60 hover:text-neon text-sm transition-colors">
+                E-Commerce & Business Websites
+              </a>
+              <a href="/services/digital-marketing-consulting" className="block text-white/60 hover:text-neon text-sm transition-colors">
+                Digital Marketing Consulting
+              </a>
+              <a href="/services/custom-logo-design" className="block text-white/60 hover:text-neon text-sm transition-colors">
+                Custom Logo Design
+              </a>
             </div>
           </div>
 

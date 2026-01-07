@@ -14,6 +14,8 @@ import PortfolioDetail from './features/portfolio/PortfolioDetail';
 import BlogPage from './features/blog';
 import BlogDetail from './features/blog/BlogDetail';
 import ContactPage from './features/contact';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 // Admin Pages
 import Login from './features/admin/Login';
@@ -45,6 +47,8 @@ function App() {
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<BlogDetail />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />  
+          <Route path="/terms" element={<TermsOfService />} />
         </Route>
 
         {/* ========================================

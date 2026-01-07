@@ -111,10 +111,8 @@ function ServiceCard({ service, index }) {
       className="group relative"
       data-hover
     >
-      <a
-        href={`/services/${service.slug}`}
-        className="block relative p-8 rounded-3xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all h-full cursor-pointer"
-      >
+      {/* ✅ REMOVE <a> TAG - Just DIV */}
+      <div className="relative p-8 rounded-3xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all h-full">
         {/* Glow */}
         <motion.div
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none"
@@ -168,16 +166,16 @@ function ServiceCard({ service, index }) {
             <span className="text-xl font-bold" style={{ color: service.color }}>
               {service.price}
             </span>
-            <motion.div
+            {/* <motion.div
               whileHover={{ scale: 1.05, x: 5 }}
               className="text-sm text-white/70 group-hover:text-neon flex items-center gap-1 transition-colors"
             >
               View Details
               <ArrowRight size={16} />
-            </motion.div>
+            </motion.div> */}
           </div>
         </div>
-      </a>
+      </div>
     </motion.div>
   );
 }
@@ -229,7 +227,7 @@ export default function AllServices() {
               href="/contact"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-10 py-5 bg-gradient-to-r from-neon to-blue text-night rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-neon/30 transition-all inline-flex items-center justify-center gap-2"
+              className="px-10 py-5 bg-gradient-to-r from-neon to-blue text-night rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-neon/30 transition-all inline-flex items-center justify-center gap-2 cursor-pointer"
               data-hover
             >
               <ArrowRight size={20} />
@@ -241,7 +239,7 @@ export default function AllServices() {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-10 py-5 border-2 border-white/20 text-white rounded-full font-bold text-lg hover:bg-white/5 transition-all inline-flex items-center justify-center gap-2"
+              className="px-10 py-5 border-2 border-white/20 text-white rounded-full font-bold text-lg hover:bg-white/5 transition-all inline-flex items-center justify-center gap-2 cursor-pointer"
               data-hover
             >
               Connect on LinkedIn

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Quote, Linkedin } from 'lucide-react';
+import founderImage from '../../assets/founder-image.png';
 
 export default function FounderMessage() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.3 });
@@ -58,11 +59,11 @@ export default function FounderMessage() {
             {/* Photo */}
             <div className="relative">
               <img 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80"
+                src={founderImage}
                 alt="Mukul Yadav"
-                className="w-24 h-24 rounded-full object-cover border-4 border-neon/50 shadow-lg shadow-neon/20"
+                className="w-24 h-24 rounded-full border-4 border-neon/50 shadow-lg shadow-neon/20 object-contain"
               />
-              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-neon rounded-full border-4 border-night flex items-center justify-center">
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg- rounded-full border-4 border-night flex items-center justify-center">
                 <span className="text-night text-xs font-bold">7+</span>
               </div>
             </div>
